@@ -233,6 +233,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectu
 \chapter{Implementation}
 \label{chap:implementation}
 
+Mention that city=gemeeente, district=wijk, ... 
+
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectus sed finibus. Suspendisse posuere dapibus erat, sed eleifend libero congue nec. Phasellus ut vehicula purus. Cras feugiat augue non interdum sodales. Sed luctus neque nec venenatis dictum. Donec porttitor, erat at dignissim tristique, arcu ipsum laoreet elit, ac vestibulum nibh turpis at nibh. Maecenas iaculis fermentum accumsan. In hac habitasse platea dictumst. Maecenas auctor tortor rutrum, consequat dolor ut, aliquam ligula.
 
 % \begin{lstlisting}[label={lst:listing-js}, language=JavaScript, caption=React Component Example]
@@ -260,9 +262,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectu
 
 \section{Implementation of Milestones}
 
+where the application model elements from Archimate modeling language are utilized.
+
 \subsection{Milestone 1}
 
-As the first in the implementation phase, to start producing the predictions, the application logic implemented is illustrated in Figure~\ref{fig:m1_logic}, where the application model elements from Archimate modeling language are utilized. The application first receives an API request from an application of Twente Fire Brigade, which can be a Geo-Information System (GIS) tool or an Extract- Transform-Load (ETL) script. The application then validates if the input parameters are valid, in other words, if the date is a date string in proper format and if the area code is a valid CBS area code, such as “GM0153” for the city of “Enschede” or “WK015303” for the district of “Twekkelerveld” in Enschede. If both input parameters are valid, then the application calculates the predicted number of chimney fires for that area on that day.
+As the first step in the implementation phase, to start producing the predictions, the application logic implemented is illustrated in Figure~\ref{fig:m1_logic}. The application first receives an API request from an application of Twente Fire Brigade, which can be a Geo-Information System (GIS) tool or an Extract- Transform-Load (ETL) script. The application then validates if the input parameters are valid, in other words, if the date is a date string in proper format and if the area code is a valid CBS area code, such as “GM0153” for the city of “Enschede” or “WK015303” for the district of “Twekkelerveld” in Enschede. If both input parameters are valid, then the application calculates the predicted number of chimney fires for that area on that day.
 
 \begin{figure}[ht]
   \centering
@@ -273,9 +277,34 @@ As the first in the implementation phase, to start producing the predictions, th
 
 To avoid complexity in the first milestone, we decided to simplify the prediction generation process, which consists of calculating spatial and temporal terms and multiplying them to have the actual prediction result. To have the spatial terms, we took a straightforward approach and implemented this in a similar way to the code used in the research paper of this project. More specifically, we used the density information of houses of different types in the format of “shapefile” and “.RData” objects. Then, we made use of the “spatial overlapping” functions in R to have the spatial terms for the area given as input parameter. As for the temporal terms for that date, we utilised only the historical weather data, namely, the wind speed and wind chill values for the Twente region in 2020, which we stored as JSON files alongside the temporal coefficients used to calculate the temporal terms for the date given as input parameter in the API request. Multiplying the calculated spatial terms for the area of interest and temporal terms for the date of interest, we have the predicted number of chimney fires for that area on that date.
 
-The course of the API request ends with creating and sending the API response in JSON format. Finally, the geometry information of the area is included in the response, in case the API request is made by the GIS tool of the Twente Fire Brigade, which needs this geometry information in GeoJSON format so that it is able to draw the borders of the area of interest on the map of the Twente. In short, at the end of Milestone 1, we implemented prototype which can process API requests and respond with a prediction result, although only using historical weather data instead of up-to- date weather forecast, hence not responding with the most accurate predictions.
+The course of the API request ends with creating and sending the API response in JSON format. Finally, the geometry information of the area is included in the response, in case the API request made by the ETL script of the Twente Fire Brigade required this geometry information in GeoJSON format so that the GIS tool is able to draw the borders of the area of interest on the map of the Twente. In short, at the end of Milestone 1, we implemented prototype which can process API requests and respond with a prediction result, although only using historical weather data instead of up-to- date weather forecast, hence not responding with the most accurate predictions.
 
 \subsection{Milestone 2}
+
+In the second milestone version of the chimney fire prediction application, we aimed to equip the application with the capability of having access to up-to-date weather forecast data, so that it uses up-to-date weather info in making predictions about the number of chimney fires in areas of interest. The implemented application logic is presented in Figure~\ref{fig:m2_logic}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{my_images/milestones/m2.png}
+  \caption{Application Logic of Milestone 2}
+  \label{fig:m2_logic}
+\end{figure}
+
+The first major improvement in this version of the API is that, it uses up-to-date weather forecast from a weather API in order to calculate the temporal terms of the prediction to be made. In this case, we selected Meteoserver [X] as the weather forecast provider, since it uses the KNMI [4] data under the hood, which is the same data source used in the research paper of this project. In addition, from the Meteoserver API, the weather data can be received in JSON format, which is the native data format for Javascript-based applications. On the other hand, one understandable limitation of the Meteoserver API is that, it provides the necessary weather data, which are the average daily temperature and wind speed, for the next ten days. In other words, the capability of making predictions in our application is limited by the time frame which the weather API provides forecast for.
+
+The second major improvement is related to the spatial terms of the prediction calculation process. Instead of using the shapefiles, R-specific objects and scripts to calculate the spatial terms each time an API request is received, we calculated the spatial terms for all Gemeente, Wijk, Buurt and 500 by 500 meter boxes in Twente region and stored the result in JSON format. While this approach is debatable in general, because the number of areas in the Twente region will be more or less the same in the coming years, in other words, because the number of areas will not scale as time goes on, this approach of pre-calculating and storing spatial term values for each area was doable. Furthermore, this optimisation cut the time spent for processing API requests from 30 seconds to only 1 second, since the compute-heavy R scripts are replaced by simple look-up operations from a JSON file via Javascript code.
+
+The third most important change in the second milestone is the capability of returning prediction results not only on a per-area basis, but also in an aggregate way. For example, if the GIS tool or ETL script of Brandweer Twente would like to receive predictions for all Gemeente in Twente region, they can make an API request to the relevant endpoint, such as “prediction/gemeente”, instead of making 14 separate requests for 14 different gemeente in Twente, which would be API requests to “prediction/gemeente/GM0153”, “prediction/gemeente/GM0158” and so on. In other words, in addition to the previous endpoints which return predictions per area, the second milestone version also implements four additional API endpoints: “prediction/gemeente”, “prediction/wijk”, “prediction/buurt” and “prediction/box”, which return the predictions for the areas of that type for the next ten days.
+
+During the implementation of the confidence interval calculation feature in Milestone 2, we initially considered using R scripts to manage these computations. However, upon further development, it became clear that these calculations could be effectively handled using JavaScript code exclusively. The algorithm, as illustrated in Figure~\ref{fig:m2_CI_logic}, involves several critical steps to compute the confidence intervals. First, we calculate the covariates from the wind chill and wind speed data. Next, we compute the standard deviation by multiplying these covariates with the G (Godambe) matrix, a predefined matrix that transforms the covariate data into a measure of variance. Following this, we calculate scaling factors for the upper and lower bounds of the confidence intervals. These scaling factors adjust the predictions to reflect the range within which the true values are likely to fall with 95\% confidence. Finally, we multiply the predictions with these scaling factors to derive the upper and lower bounds of the confidence intervals. These steps ensure that each prediction provided by the API now includes these bounds, allowing users to gauge the reliability and variability of the data with greater precision.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{my_images/milestones/m2_CI_logic.png}
+  \caption{Application Logic of Confidence Interval Calculation Algorithm}
+  \label{fig:m2_CI_logic}
+\end{figure}
+
 \subsection{Milestone 3}
 \subsection{Milestone 4}
 
