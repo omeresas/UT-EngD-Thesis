@@ -181,11 +181,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectu
 
 \section{Design Approach}
 
+Mention why agile, use node.js and docker
+
 \section{Architectural Design of Milestones}
 
 \subsection{Milestone 1}
 
-In the initial design phase of Milestone 1, our goal was to quickly establish a functioning software tool that relied on historical data for its predictions. By the conclusion of this milestone, we aimed to have a backend API capable of forecasting chimney fire risks across various areas of Twente region using past weather data. Even though employing historical data compromises the accuracy of our predictions, it simplifies implementation and allows us to quickly integrate and test the IT systems, ensuring all components operate smoothly and validate the system's overall functionality from the outset. This setup also enables us to swiftly test the integration of systems, forming a reliable basis for the features planned in subsequent milestones. With this mindset, we designed the architecture of Milestone 1 to consist of a simple API and the necessary IT systems from Twente Fire Brigade for visualization purposes, as seen in Figure~\ref{fig:iteration_1_arch}.
+In the design phase of Milestone 1, our goal was to quickly establish a functioning software tool that relied on historical data for its predictions. By the conclusion of this milestone, we aimed to have a backend API capable of forecasting chimney fire risks across various areas of Twente region using past weather data. Even though employing historical data compromises the accuracy of our predictions, it simplifies implementation and allows us to quickly integrate and test the IT systems, ensuring all components operate smoothly and validate the system's overall functionality from the outset. This ensures all components are able to function as expected right from the start and establishes a reliable basis for the features planned in subsequent milestones. With this mindset, we designed the architecture of Milestone 1 to consist of a simple API and the necessary IT systems from Twente Fire Brigade for visualization purposes, as seen in Figure~\ref{fig:iteration_1_arch}.
 
 \begin{figure}[ht]
   \centering
@@ -194,9 +196,31 @@ In the initial design phase of Milestone 1, our goal was to quickly establish a 
   \label{fig:iteration_1_arch}
 \end{figure}
 
+The backend API is designed to serve as a source for generating predictions based on historical data. To carry out data fetching and saving, Twente Fire Brigade is to develop an Extract-Transform-Load (ETL) script that makes HTTP GET requests to the API. To display the predictions on an interactive map, a Geo-Information-System (GIS) tool, which is already utilised for visualization tasks at Twente Fire Brigade as can be seen in Figure~\ref{fig:iteration_1_gis}, can be connected to the data warehouse or geo-database of Twente Fire Brigade and get and display the predictions that are saved those databases. Last but not least, to realise this and subsequent architectures, the application is to be deployed Azure cloud platform in a Docker container, using the Azure account of Twente Fire Brigade.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{my_images/milestones/iteration_1_gis.png}
+  \caption{Screenshot of the GIS tool at Twente Fire Brigade}
+  \label{fig:iteration_1_gis}
+\end{figure}
+
 \subsection{Milestone 2}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectus sed finibus. Suspendisse posuere dapibus erat, sed eleifend libero congue nec. Phasellus ut vehicula purus. Cras feugiat augue non interdum sodales. Sed luctus neque nec venenatis dictum. Donec porttitor, erat at dignissim tristique, arcu ipsum laoreet elit, ac vestibulum nibh turpis at nibh. Maecenas iaculis fermentum accumsan. In hac habitasse platea dictumst.
+Building upon the solid foundation established in Milestone 1, Milestone 2 of the chimney fire risk prediction application development significantly enhances both the depth and the reliability of our predictions. In this iteration, we have integrated the capability to receive and process real-time weather forecast data, which allows the backend application to generate more accurate and timely predictions about chimney fire risks in the Twente region, which can be seen in Figure~\ref{fig:iteration_2_arch}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{my_images/milestones/iteration_2_arch.png}
+  \caption{Architectural Diagram of Milestone 2}
+  \label{fig:iteration_2_arch}
+\end{figure}
+
+Specifically, the backend API now connects to an external weather forecasting service to obtain up-to-date weather predictions. These predictions include critical weather parameters that significantly influence chimney fire occurrences, such as air temperature, wind speed and wind chill. By incorporating current weather data, the API can adjust its risk assessments on a daily basis to reflect changing environmental conditions, thereby providing predictions that are not only based on historical weather patterns but also on the present weather scenario.
+
+Another significant enhancement in Milestone 2 is the introduction of confidence intervals in the prediction outputs. Confidence intervals provide a statistical range that is likely to contain the true value of the number of chimney fires expected, offering an additional layer of information about the reliability and precision of the predictions. This calculation of confidence intervals might require the use of spatial statistics libraries in R, necessitating the running of some R processes in the backend application to handle these computations effectively. This feature is particularly valuable as it helps decision-makers at the Twente Fire Brigade understand the uncertainty associated with the predictions, aiding them in risk assessment and resource allocation more effectively.
+
+In short, Milestone 2 marks a significant step forward in our project, moving from a prototype that provided basic predictions based on historical data to a sophisticated tool that utilizes real-time data to enhance prediction accuracy and utility.
 
 \subsection{Milestone 3}
 
@@ -255,14 +279,16 @@ The course of the API request ends with creating and sending the API response in
 \subsection{Milestone 3}
 \subsection{Milestone 4}
 
-\section{Deployment}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectus sed finibus. Suspendisse posuere dapibus erat, sed eleifend libero congue nec. Phasellus ut vehicula purus. Cras feugiat augue non interdum sodales. Sed luctus neque nec venenatis dictum. Donec porttitor, erat at dignissim tristique, arcu ipsum laoreet elit, ac vestibulum nibh turpis at nibh. Maecenas iaculis fermentum accumsan. In hac habitasse platea dictumst. Maecenas auctor tortor rutrum, consequat dolor ut, aliquam ligula.
-
 \section{Frontend Application}
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam congue sed lectus sed finibus. Suspendisse posuere dapibus erat, sed eleifend libero congue nec. Phasellus ut vehicula purus. Cras feugiat augue non interdum sodales. Sed luctus neque nec venenatis dictum. Donec porttitor, erat at dignissim tristique, arcu ipsum laoreet elit, ac vestibulum nibh turpis at nibh. Maecenas iaculis fermentum accumsan. In hac habitasse platea dictumst. Maecenas auctor tortor rutrum, consequat dolor ut, aliquam ligula.
 
+\chapter{Deployment \& Validation}
+\label{chap:deployment}
+
+\section{Deployment}
+
+\section{Validation}
 
 
 \chapter{Conclusion and Future Work}
