@@ -22,11 +22,12 @@ This project presents a **data-driven application** designed to predict chimney 
 
 ### Prediction Map View
 
+_Displays predicted chimney fire risks across different regions in the Twente area._
 <img src="./screenshots/front-end_s0-1.png" alt="Prediction Map View" width="600"/>
 
-_Displays predicted chimney fire risks across different regions in the Twente area._
-
 ## Model Refitting Interface
+
+_Allows the user to retrain the predictive mathematical model in four steps._
 
 <table>
   <tr>
